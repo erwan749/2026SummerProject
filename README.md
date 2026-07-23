@@ -42,15 +42,18 @@ Gestion des morceaux associés aux albums :
 - Gestion des erreurs lors des opérations
 
 ## Structure du projet
+
+```text
 BlindTest
 │
 ├── Entities
-│ ├── Artist.cs
-│ ├── Album.cs
-│ ├── Track.cs
-│ └── ArtistManager.cs
+│   ├── Artist.cs
+│   ├── Album.cs
+│   ├── Track.cs
+│   └── ArtistManager.cs
 │
 └── ...
+```
 ## Technologies utilisées
 
 - C#
