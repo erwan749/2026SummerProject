@@ -8,7 +8,7 @@ namespace Entities
 {
     public class Track
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Title { get; set; }
         public Album Album { get; set; }
         public int Duration {get; set; }

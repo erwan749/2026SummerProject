@@ -101,3 +101,4 @@ E:\code\BlindTest\BlindTest.Test\obj\Debug\net8.0\refint\BlindTest.Test.dll
 E:\code\BlindTest\BlindTest.Test\obj\Debug\net8.0\BlindTest.Test.pdb
 E:\code\BlindTest\BlindTest.Test\obj\Debug\net8.0\BlindTest.Test.genruntimeconfig.cache
 E:\code\BlindTest\BlindTest.Test\obj\Debug\net8.0\ref\BlindTest.Test.dll
+E:\code\BlindTest\BlindTest.Test\obj\Debug\net8.0\BlindTest.Test.sourcelink.json

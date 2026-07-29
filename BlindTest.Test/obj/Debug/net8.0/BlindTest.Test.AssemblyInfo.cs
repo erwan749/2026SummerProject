@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlindTest.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+afec175119c62a9ad153b1c41928435eec0eeadb")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlindTest.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlindTest.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

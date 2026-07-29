@@ -10,7 +10,7 @@ namespace Entities
     {
         public List<Artist> Artists { get; private set; } = new List<Artist>();
 
-        private Artist GetArtistByExternalId(int externalId , string error)
+        private Artist GetArtistByExternalId(string externalId , string error)
         {
             if (!Artists.Any(a => a.ExternalId == externalId)) throw new Exception(error);
             return Artists.First(a => a.ExternalId == externalId);
@@ -39,18 +39,20 @@ namespace Entities
 
             Artist existingArtist = GetArtistByExternalId(artist.ExternalId, "Artist is not in the list");
 
-            int artistIndex = Artists.FindIndex(a => a.ExternalId == existingArtist.ExternalId);
-
-            Artists[artistIndex] = artist;
+            existingArtist.Name = artist.Name;
+            existingArtist.PictureSmall = artist.PictureSmall;
+            existingArtist.PictureMedium = artist.PictureMedium;
+            existingArtist.PictureBig = artist.PictureBig;
+            existingArtist.PictureXl = artist.PictureXl;
         }
-        public void AddAlbum (int externalId, Album album)
+        public void AddAlbum (string externalId, Album album)
         {
             if (album == null) throw new ArgumentNullException();
             Artist artist = GetArtistByExternalId(externalId, "Artist is not in the list");
             album.Artist= artist;
             artist.Albums.Add(album);
         }
-        public void AddTrack (int externalId, int albumId, Track track)
+        public void AddTrack (string externalId, string albumId, Track track)
         {
             if (track == null) throw new ArgumentNullException(null,"Track is null");
             Artist artist = GetArtistByExternalId(externalId, "Artist does not exist");
@@ -59,7 +61,7 @@ namespace Entities
             artist.Albums[albumIndex].Tracks.Add(track);
             track.Album = artist.Albums.First(a => a.Id == albumId);
         }
-        public Track RemoveTrack(int externalId, int albumId, Track track)
+        public Track RemoveTrack(string externalId, string albumId, Track track)
         {
             if (track == null) throw new ArgumentNullException(null,"Track is null");
 

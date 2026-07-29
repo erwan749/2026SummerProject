@@ -8,7 +8,7 @@ namespace Entities
 {
     public class Artist
     {
-        public int ExternalId { get; set; }
+        public string ExternalId { get; set; }
         public string Name { get; set; }
         public string PictureSmall { get; set; }
         public string PictureMedium { get; set; }
