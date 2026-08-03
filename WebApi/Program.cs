@@ -1,4 +1,4 @@
-using WebApi;
+using WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +11,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<SpotifyAuthService>();
 builder.Services.AddTransient<SpotifyApiService>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClient", policy =>
+    {
+        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -21,7 +30,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
+app.UseCors("AllowClient");
+
 
 app.UseAuthorization();
 

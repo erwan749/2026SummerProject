@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Collections.Generic;
-namespace WebApi
+namespace WebApi.Services
 {
     public class SpotifyAuthService
     {
@@ -37,7 +37,7 @@ namespace WebApi
             var reponse = await client.SendAsync(request);
             SpotifyTokenResponse tokenReponse = JsonSerializer.Deserialize<SpotifyTokenResponse>(await reponse.Content.ReadAsStringAsync());
             _accessToken = tokenReponse.AccessToken;
-            _tokenExpiration = DateTime.UtcNow.AddSeconds((tokenReponse.ExpiresIn - 60));
+            _tokenExpiration = DateTime.UtcNow.AddSeconds(tokenReponse.ExpiresIn - 60);
             return _accessToken;
         }
     }

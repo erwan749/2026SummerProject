@@ -8,7 +8,7 @@ using WebApi.Dtos;
 using WebApi.Dtos.Spotify;
 
 
-namespace WebApi
+namespace WebApi.Services
 {
     public class SpotifyApiService
     {
@@ -38,7 +38,7 @@ namespace WebApi
                 item.Type = "artist";
                 item.Id = aItem.Id;
                 item.Name = aItem.Name;
-                item.ImageUrl = (aItem.Images != null && aItem.Images.Count > 0) ? aItem.Images[0].Url : "";
+                item.ImageUrl = aItem.Images != null && aItem.Images.Count > 0 ? aItem.Images[0].Url : "";
                 item.Subtitle = null;
                 item.ArtistId = aItem.Id;
                 results.Add(item);
@@ -49,9 +49,9 @@ namespace WebApi
                 item.Type = "album";
                 item.Id = aItem.Id;
                 item.Name = aItem.Name;
-                item.ImageUrl = (aItem.Images != null && aItem.Images.Count > 0) ? aItem.Images[0].Url : "";
-                item.Subtitle = (aItem.Artists != null && aItem.Artists.Count > 0) ? aItem.Artists[0].Name : "";
-                item.ArtistId = (aItem.Artists != null && aItem.Artists.Count > 0) ? aItem.Artists[0].Id : "";
+                item.ImageUrl = aItem.Images != null && aItem.Images.Count > 0 ? aItem.Images[0].Url : "";
+                item.Subtitle = aItem.Artists != null && aItem.Artists.Count > 0 ? aItem.Artists[0].Name : "";
+                item.ArtistId = aItem.Artists != null && aItem.Artists.Count > 0 ? aItem.Artists[0].Id : "";
                 results.Add(item);
             }
             foreach (SpotifyTrackItem tItem in searchResponse.Tracks.Items)
@@ -60,11 +60,11 @@ namespace WebApi
                 item.Type = "track";
                 item.Id = tItem.Id;
                 item.Name = tItem.Name;
-                item.ImageUrl = (tItem.Album != null && tItem.Album.Images != null && tItem.Album.Images.Count > 0) ? tItem.Album.Images[0].Url : "";
-                string artistName = (tItem.Artists != null && tItem.Artists.Count > 0) ? tItem.Artists[0].Name : "";
-                string albumName = (tItem.Album != null) ? tItem.Album.Name : "";
+                item.ImageUrl = tItem.Album != null && tItem.Album.Images != null && tItem.Album.Images.Count > 0 ? tItem.Album.Images[0].Url : "";
+                string artistName = tItem.Artists != null && tItem.Artists.Count > 0 ? tItem.Artists[0].Name : "";
+                string albumName = tItem.Album != null ? tItem.Album.Name : "";
                 item.Subtitle = $"par {artistName} · {albumName}";
-                item.ArtistId = (tItem.Artists != null && tItem.Artists.Count > 0) ? tItem.Artists[0].Id : "";
+                item.ArtistId = tItem.Artists != null && tItem.Artists.Count > 0 ? tItem.Artists[0].Id : "";
                 results.Add(item);
             }
             return results;

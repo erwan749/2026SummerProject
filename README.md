@@ -7,8 +7,9 @@ Les énoncés, ressources pédagogiques et tests fournis par l'école ne sont pa
 
 ## Description du projet
 Ce projet consiste en la mise en place d'une application de blind test musical : gestion d'entités
-représentant des artistes, des albums et des morceaux, et une API permettant de rechercher ce
-contenu via un fournisseur de données musicales externe (Spotify).
+représentant des artistes, des albums et des morceaux, une API permettant de rechercher ce contenu
+via un fournisseur de données musicales externe (Spotify), et un client web permettant d'effectuer
+cette recherche et d'afficher les résultats.
 
 ## Fonctionnalités implémentées
 
@@ -25,6 +26,13 @@ Gestion en mémoire des artistes, albums et morceaux, avec relations bidirection
   d'accès pour éviter des demandes répétées
 - Endpoint de recherche combinant artistes, albums et morceaux en une seule liste de résultats,
   avec image, sous-titre et identifiant d'artiste associé pour chaque élément
+- Configuration CORS pour autoriser les appels depuis le client web
+
+### Client web (JavaScript)
+- Champ de recherche avec temporisation (debounce) avant l'appel à l'API
+- Affichage des résultats de recherche sous forme de cartes (image, nom, sous-titre)
+- Gestion des différents états : chargement, aucun résultat, erreur, recherche vide
+- Interface responsive
 
 ## Structure du projet
 ```text
@@ -36,18 +44,24 @@ BlindTest
 │   ├── Track.cs
 │   └── ArtistManager.cs
 │
-└── WebApi
-    ├── Services/
-    │   ├── SpotifyAuthService.cs
-    │   └── SpotifyApiService.cs
-    ├── Dtos/
-    └── Controllers/
-        └── SearchController.cs
+├── WebApi
+│   ├── Services/
+│   │   ├── SpotifyAuthService.cs
+│   │   └── SpotifyApiService.cs
+│   ├── Dtos/
+│   └── Controllers/
+│       └── SearchController.cs
+│
+└── BlindtestClient
+    ├── index.html
+    ├── style.css
+    └── script.js
 ```
 
 ## Technologies utilisées
 - C# / .NET
 - ASP.NET Core Web API
+- HTML / CSS / JavaScript
 - API Spotify
 - Git
 
