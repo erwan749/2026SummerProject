@@ -8,5 +8,6 @@
         public string ImageUrl { get; set; }
         public string Subtitle { get; set; }
         public string ArtistId { get; set; }
+        public string AlbumId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using WebApi.Services;
+using Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<SpotifyAuthService>();
-builder.Services.AddTransient<SpotifyApiService>();
+builder.Services.AddSingleton<SpotifyApiService>();
+builder.Services.AddSingleton<ArtistManager>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClient", policy =>
