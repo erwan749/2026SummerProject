@@ -28,6 +28,8 @@ Gestion en mémoire des artistes, albums et morceaux, avec relations bidirection
 - Détail d'une piste avec son extrait audio, avec repli automatique sur une autre source si
   l'extrait n'est pas disponible directement
 - Configuration CORS pour autoriser les appels depuis le client web
+- Persistance en base de données SQL Server (via Entity Framework Core) des artistes, albums et
+  morceaux consultés, pour limiter les appels à l'API externe sur un contenu déjà visité
 
 ### Client web (JavaScript)
 - Champ de recherche avec temporisation (debounce) avant l'appel à l'API

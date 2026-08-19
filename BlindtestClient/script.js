@@ -2,8 +2,15 @@ let debounceTimer;
 let currentVolume = 1;
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("results");
+let currentAudio = null;
 
 
+function stopCurrentAudio() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+}
 async function searchApi(query) {
    try{
     const reponse =  await(await fetch("https://localhost:7087/api/search?q="+query)).json();
@@ -238,6 +245,7 @@ function createAlbumPage(album) {
     return page;
 }
 async function performSearch(query) {
+    stopCurrentAudio();
     if (query.trim() === "") {
         searchResults.innerHTML = "";
         return;

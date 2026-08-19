@@ -1,5 +1,7 @@
-using WebApi.Services;
 using Entities;
+using Microsoft.EntityFrameworkCore;
+using WebApi.Data;
+using WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<SpotifyAuthService>();
-builder.Services.AddSingleton<SpotifyApiService>();
-builder.Services.AddSingleton<ArtistManager>();
+builder.Services.AddScoped<SpotifyApiService>();
+builder.Services.AddScoped<ArtistManager>();
+builder.Services.AddSingleton<AlbumPaginationCache>();
+string connectionString = builder.Configuration.GetConnectionString("BlindTestDb");
+builder.Services.AddDbContext<BlindTestDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClient", policy =>
@@ -40,5 +45,11 @@ app.UseCors("AllowClient");
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<BlindTestDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();

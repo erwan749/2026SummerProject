@@ -16,6 +16,7 @@ namespace Entities
         public string PictureXl { get; set; }
         public Guid Id { get; private set; } = Guid.NewGuid();
         public List<Album> Albums { get; set; } = new List<Album>();
+        public DateTime LastUpdated { get; set; } = DateTime.MinValue;
     }
 
 }
