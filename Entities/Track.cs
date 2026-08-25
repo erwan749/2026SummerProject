@@ -14,5 +14,6 @@ namespace Entities
         public int Duration {get; set; }
         public int TrackPosition { get; set; }
         public string Preview { get; set; }
+        public List<BlindTest> BlindTests { get; set; } = new List<BlindTest>();
     }
 }

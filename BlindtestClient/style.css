@@ -275,3 +275,81 @@ body {
   font-style: italic;
   text-align: center;
 }
+
+#createBlindTestBtn {
+  margin-top: 1rem;
+  padding: 0.7rem 1.6rem;
+  background: rgba(0, 104, 143, 0.15);
+  border: 1px solid #00688f;
+  color: #f0f0f0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.15s;
+}
+
+#createBlindTestBtn:hover {
+  background: rgba(0, 104, 143, 0.3);
+}
+
+#blindTestName,
+#blindTestCategory,
+#trackSearchInput {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.9rem 1.2rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 999px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.2s, background 0.2s;
+  margin-top: 1rem;
+  display: block;
+}
+
+#blindTestName::placeholder,
+#blindTestCategory::placeholder,
+#trackSearchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#blindTestName:focus,
+#blindTestCategory:focus,
+#trackSearchInput:focus {
+  border-color: #00688f;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(0, 104, 143, 0.25);
+}
+
+#trackSearchResults,
+#selectedTracksContainer {
+  width: 100%;
+  max-width: 700px;
+  margin-top: 1.5rem;
+}
+
+#selectedTracksContainer h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  grid-column: 1 / -1;
+}
+
+.result-card.selected {
+  border-color: #00688f;
+  background: rgba(0, 104, 143, 0.15);
+}
+
+.result-card.selected::after {
+  content: "✓";
+  color: #00688f;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-left: auto;
+}

@@ -1,7 +1,11 @@
 let debounceTimer;
 let currentVolume = 1;
+let selectedTracks = [];
+let selectedTracksContainerRef = null;
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("results");
+const createBlindTestBtn = document.getElementById("createBlindTestBtn"); 
+const API_BASE_URL = "https://localhost:7087";
 let currentAudio = null;
 
 
@@ -13,16 +17,25 @@ function stopCurrentAudio() {
 }
 async function searchApi(query) {
    try{
-    const reponse =  await(await fetch("https://localhost:7087/api/search?q="+query)).json();
+    const reponse =  await(await fetch(API_BASE_URL+"/api/search?q="+query)).json();
     return reponse;
    }
    catch(error){
     throw error;
    }
 }
+async function searchBlindTestTrack(query){
+    try{
+        const reponse = await(await fetch(API_BASE_URL+"/api/blindtests/search-tracks?q="+query)).json();
+        return reponse;
+    }
+    catch(error){
+        throw error;
+    }
+}
 async function artistClick(id) {
    try{
-    const reponse =  await(await fetch("https://localhost:7087/api/Artists/"+id)).json();
+    const reponse =  await(await fetch(API_BASE_URL+"/api/Artists/"+id)).json();
     return reponse;
    }
    catch(error){
@@ -31,7 +44,7 @@ async function artistClick(id) {
 }
 async function albumClick(artistId, albumId) {
    try{
-    const reponse = await(await fetch(`https://localhost:7087/api/artists/${artistId}/albums/${albumId}`)).json();
+    const reponse = await(await fetch(API_BASE_URL+`/api/artists/${artistId}/albums/${albumId}`)).json();
     return reponse;
    }
    catch(error){
@@ -40,7 +53,7 @@ async function albumClick(artistId, albumId) {
 }
 async function trackClick(artistId, albumId, trackId) {
    try{
-    const reponse = await(await fetch(`https://localhost:7087/api/artists/${artistId}/albums/${albumId}/tracks/${trackId}`)).json();
+    const reponse = await(await fetch(API_BASE_URL+`/api/artists/${artistId}/albums/${albumId}/tracks/${trackId}`)).json();
     return reponse;
    }
    catch(error){
@@ -97,7 +110,7 @@ function createArtistPage(artist) {
             showMoreBtn.disabled = true;
             showMoreBtn.textContent = "Chargement...";
             try {
-                const more = await fetch(`https://localhost:7087/api/artists/${artist.id}/albums`).then(r => r.json());
+                const more = await fetch(API_BASE_URL+`/api/artists/${artist.id}/albums`).then(r => r.json());
                 for (const album of more.albums) {
                     const albumItem = {
                         type: "album",
@@ -128,7 +141,6 @@ function createArtistPage(artist) {
     page.appendChild(albumsSection);
     return page;
 }
-
 searchInput.addEventListener("input", (event) => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -275,6 +287,8 @@ function createBackButton() {
     backBtn.classList.add("back-button");
     backBtn.textContent = "← Retour à la recherche";
     backBtn.onclick = () => {
+        searchInput.style.display = "";
+        createBlindTestBtn.style.display ="";
         performSearch(searchInput.value);
     };
     return backBtn;
@@ -433,4 +447,186 @@ function createTrackPlayerPage(track, albumTracks) {
 
     page.appendChild(player);
     return page;
+}
+
+function createBlindTestPage(){
+    const page = document.createElement("div");
+    page.appendChild(createBackButton());
+
+    const searchBar = document.createElement("input");
+    searchBar.id = "blindTestName";
+    searchBar.placeholder = "Nom du blind test";
+    page.appendChild(searchBar);
+
+    const blindTestCategory = document.createElement("input");
+    blindTestCategory.id = "blindTestCategory";
+    blindTestCategory.placeholder = "Catégorie (ex: rap, rock...)";  
+    page.appendChild(blindTestCategory);
+
+    const trackSearchInput = document.createElement("input");
+    trackSearchInput.id = "trackSearchInput";
+    trackSearchInput.placeholder= "Rechercher un titre...";
+    page.appendChild(trackSearchInput);
+
+    const trackSearchResults = document.createElement("div");
+    trackSearchResults.id = "trackSearchResults";
+    trackSearchInput.addEventListener("input" ,(event) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+            performTrackSearch(event.target.value , trackSearchResults);
+        }, 1000);
+    })
+    trackSearchResults.classList.add("results-grid");
+    page.appendChild(trackSearchResults);
+
+    const selectedTracksContainer = document.createElement("div");
+    selectedTracksContainer.id = "selectedTracksContainer";
+    page.appendChild(selectedTracksContainer);
+    selectedTracksContainerRef = selectedTracksContainer;
+    selectedTracksContainer.classList.add("results-grid");
+    renderSelectedTracksList(selectedTracksContainer);
+
+    const submitBtn = document.createElement("button");
+    submitBtn.classList.add("show-more-btn");
+    submitBtn.textContent = "Créer le blind test";
+    submitBtn.onclick = async () => {
+        if (selectedTracks.length === 0) {
+            alert("Sélectionne au moins une track.");
+            return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Création en cours...";
+        try {
+            await createBlindTest(searchBar.value, blindTestCategory.value, selectedTracks);
+            alert("Blind test créé !");
+            selectedTracks = [];
+            searchInput.style.display = "";
+            createBlindTestBtn.style.display = "";
+            performSearch(searchInput.value);
+        } catch (error) {
+            console.log(error);
+            alert("Erreur lors de la création.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Créer le blind test";
+        }
+    };
+    page.appendChild(submitBtn);
+
+    return page;
+}
+
+async function performTrackSearch(query, container){
+    if (query.trim() === "") {
+        container.innerHTML = "";
+        return;
+    }
+    try {
+        container.innerHTML = "";
+        container.textContent = "Recherche en cours...";
+        const results = await searchBlindTestTrack(query);
+        container.textContent = "";
+        if (results.length === 0) {
+            container.textContent = "aucun résultat trouvé";
+        } else {
+            for (const result of results) {
+                container.appendChild(createTrackSelectionCard(result));
+            }
+        }
+    }
+    catch (error) {
+        console.log(error);
+        container.innerHTML = "";
+        container.textContent = "Une erreur est survenue, réessaie.";
+    }
+}
+createBlindTestBtn.onclick = () => {
+    createBlindTestBtn.style.display = "none";
+    searchInput.style.display = "none";
+    searchResults.innerHTML = "";
+    searchResults.appendChild(createBlindTestPage())
+};
+function createTrackSelectionCard(item) {
+    const card = document.createElement("div");
+    card.classList.add("result-card");
+    card.dataset.id = item.id;
+    card.dataset.artistId = item.artistId;
+    card.dataset.albumId = item.albumId;
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.style.display = "none";
+    checkbox.checked = selectedTracks.some(t => t.id === item.id);
+    card.classList.toggle("selected", checkbox.checked);
+
+    checkbox.onchange = () => {
+        if (checkbox.checked) {
+            selectedTracks.push(item);
+        } else {
+            const confirmed = confirm(`Retirer "${item.name}" de la sélection ?`);
+            if (!confirmed) {
+                checkbox.checked = true;
+                return;
+            }
+            selectedTracks = selectedTracks.filter(t => t.id !== item.id);
+        }
+        syncCardsCheckedState(item.id, checkbox.checked);
+        if (selectedTracksContainerRef) {
+            renderSelectedTracksList(selectedTracksContainerRef);
+        }
+    };
+
+    card.onclick = () => {
+        checkbox.checked = !checkbox.checked;
+        checkbox.onchange();
+    };
+
+    card.innerHTML = `<img src="${item.imageUrl}"> <p class="name">${item.name}</p> <p class="subtitle">${item.subtitle ?? ""}</p>`;
+    card.appendChild(checkbox);
+    return card;
+}
+
+function renderSelectedTracksList(container) {
+    container.innerHTML = "";
+    const title = document.createElement("h3");
+    title.textContent = `Sélection (${selectedTracks.length})`;
+    container.appendChild(title);
+    for (const item of selectedTracks) {
+        container.appendChild(createTrackSelectionCard(item));
+    }
+}
+
+async function createBlindTest(name, category, tracks) {
+    try {
+        const payload = {
+            name: name,
+            category: category,
+            tracks: tracks.map(t => ({
+                artistId: t.artistId,
+                albumId: t.albumId,
+                trackId: t.id
+            }))
+        };
+        const response = await fetch(API_BASE_URL+"/api/BlindTests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const reponse = await response.json();
+        return reponse;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+function syncCardsCheckedState(itemId, checked) {
+    const trackSearchResults = document.getElementById("trackSearchResults");
+    const containers = [trackSearchResults, selectedTracksContainerRef].filter(Boolean);
+    containers.forEach(container => {
+        container.querySelectorAll(`.result-card[data-id="${itemId}"]`).forEach(card => {
+            const cb = card.querySelector('input[type="checkbox"]');
+            if (cb) cb.checked = checked;
+            card.classList.toggle("selected", checked);
+        });
+    });
 }

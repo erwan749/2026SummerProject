@@ -43,7 +43,10 @@ namespace WebApi.Services
             Entities.Artist artist = await _dbContext.Artists.FirstOrDefaultAsync(a => a.ExternalId == artistId);
             if (artist != null)
             {
-                _artistManager.Add(artist);
+                if (!_artistManager.Artists.Any(a => a.ExternalId == artistId))
+                {
+                    _artistManager.Add(artist);
+                }
                 return artist;
             }
 
@@ -112,17 +115,7 @@ namespace WebApi.Services
             }
             foreach (SpotifyTrackItem tItem in searchResponse.Tracks.Items)
             {
-                SearchResultItem item = new SearchResultItem();
-                item.Type = "track";
-                item.Id = tItem.Id;
-                item.Name = tItem.Name;
-                item.ImageUrl = tItem.Album != null && tItem.Album.Images != null && tItem.Album.Images.Count > 0 ? tItem.Album.Images[0].Url : "";
-                string artistName = tItem.Artists != null && tItem.Artists.Count > 0 ? tItem.Artists[0].Name : "";
-                string albumName = tItem.Album != null ? tItem.Album.Name : "";
-                item.Subtitle = $"par {artistName} · {albumName}";
-                item.ArtistId = tItem.Artists != null && tItem.Artists.Count > 0 ? tItem.Artists[0].Id : "";
-                item.AlbumId = tItem?.Album != null ? tItem?.Album.Id : "";
-                results.Add(item);
+                results.Add(MapTrackItemToSearchResult(tItem));
             }
             return results;
         }
@@ -350,6 +343,39 @@ namespace WebApi.Services
             dto.PreviewUrl = track.Preview;
             await _dbContext.SaveChangesAsync();
             return dto;
+        }
+        private SearchResultItem MapTrackItemToSearchResult(SpotifyTrackItem tItem)
+        {
+
+            SearchResultItem item = new SearchResultItem();
+            item.Type = "track";
+            item.Id = tItem.Id;
+            item.Name = tItem.Name;
+            item.ImageUrl = tItem.Album != null && tItem.Album.Images != null && tItem.Album.Images.Count > 0 ? tItem.Album.Images[0].Url : "";
+            string artistName = tItem.Artists != null && tItem.Artists.Count > 0 ? tItem.Artists[0].Name : "";
+            string albumName = tItem.Album != null ? tItem.Album.Name : "";
+            item.Subtitle = $"par {artistName} · {albumName}";
+            item.ArtistId = tItem.Artists != null && tItem.Artists.Count > 0 ? tItem.Artists[0].Id : "";
+            item.AlbumId = tItem?.Album != null ? tItem?.Album.Id : "";
+            return item;
+        }
+        public async Task<List<SearchResultItem>> SearchTracksOnlyAsync(string query) 
+        {
+
+            string token = await _spotifyAuthService.GetAccessTokenAsync();
+            string url = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track";
+            HttpClient client = _httpClientFactory.CreateClient();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var reponse = await client.SendAsync(request);
+            string json = await reponse.Content.ReadAsStringAsync();
+            SpotifySearchResponse searchResponse = JsonSerializer.Deserialize<SpotifySearchResponse>(json);
+            List<SearchResultItem> results = new List<SearchResultItem>();
+            foreach(SpotifyTrackItem tItem in searchResponse.Tracks.Items)
+            {
+                results.Add(MapTrackItemToSearchResult(tItem));
+            }
+            return results;
         }
     }
 }

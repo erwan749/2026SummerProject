@@ -30,6 +30,8 @@ Gestion en mémoire des artistes, albums et morceaux, avec relations bidirection
 - Configuration CORS pour autoriser les appels depuis le client web
 - Persistance en base de données SQL Server (via Entity Framework Core) des artistes, albums et
   morceaux consultés, pour limiter les appels à l'API externe sur un contenu déjà visité
+- Création de blind tests : sélection d'un ensemble de morceaux (par nom, catégorie/thème), pour
+  constituer un pool de questions réutilisable sur plusieurs parties
 
 ### Client web (JavaScript)
 - Champ de recherche avec temporisation (debounce) avant l'appel à l'API
@@ -40,6 +42,8 @@ Gestion en mémoire des artistes, albums et morceaux, avec relations bidirection
   interactive, navigation au morceau précédent/suivant, réglage du volume
 - Gestion des différents états : chargement, aucun résultat, erreur, recherche vide
 - Interface responsive
+- Écran de création d'un blind test : recherche de morceaux dédiée, sélection par cases à cocher
+  synchronisée entre les résultats de recherche et la liste de sélection en cours
 
 ## Structure du projet
 ```text
