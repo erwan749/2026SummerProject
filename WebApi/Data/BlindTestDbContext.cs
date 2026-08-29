@@ -14,6 +14,7 @@ namespace WebApi.Data
         public DbSet<BlindTest> BlindTests { get; set; }
         public DbSet<GameSession> GameSessions { get; set; }
         public DbSet<GameSessionQuestion> GameSessionQuestions { get; set; }
+        public DbSet<AdminKey> AdminKeys { get; set; }
 
     }
 }

@@ -5,6 +5,8 @@ namespace WebApi.Dtos
     {
         public string Name { get; set; }
         public string Category { get; set; }
+        public string AdminKey { get; set; }
         public List<TrackSelectionDto> Tracks { get; set; }
+        
     }
 }

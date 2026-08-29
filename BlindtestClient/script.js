@@ -522,6 +522,12 @@ function createBlindTestPage(){
     blindTestCategory.placeholder = "Catégorie (ex: rap, rock...)";  
     page.appendChild(blindTestCategory);
 
+    const adminKeyInput = document.createElement("input");
+    adminKeyInput.id = "adminKeyInput";
+    adminKeyInput.type = "password";
+    adminKeyInput.placeholder = "Clé admin";
+    page.appendChild(adminKeyInput);
+    
     const trackSearchInput = document.createElement("input");
     trackSearchInput.id = "trackSearchInput";
     trackSearchInput.placeholder= "Rechercher un titre...";
@@ -556,7 +562,7 @@ function createBlindTestPage(){
         submitBtn.disabled = true;
         submitBtn.textContent = "Création en cours...";
         try {
-            await createBlindTest(searchBar.value, blindTestCategory.value, selectedTracks);
+            await createBlindTest(searchBar.value, blindTestCategory.value, adminKeyInput.value, selectedTracks);
             alert("Blind test créé !");
             selectedTracks = [];
             searchInput.style.display = "";
@@ -654,11 +660,12 @@ function renderSelectedTracksList(container) {
     }
 }
 
-async function createBlindTest(name, category, tracks) {
+async function createBlindTest(name, category, adminKey, tracks) {
     try {
         const payload = {
             name: name,
             category: category,
+            adminKey: adminKey,
             tracks: tracks.map(t => ({
                 artistId: t.artistId,
                 albumId: t.albumId,
@@ -769,6 +776,26 @@ function showGameQuestion() {
             }
         };
         container.appendChild(playBtn);
+        
+        const volumeControl = document.createElement("div");
+        volumeControl.classList.add("volume-control");
+        volumeControl.innerHTML = `🔊`;
+        const volumeSlider = document.createElement("input");
+        volumeSlider.type = "range";
+        volumeSlider.min = "0";
+        volumeSlider.max = "1";
+        volumeSlider.step = "0.01";
+        volumeSlider.value = currentVolume;
+        volumeControl.appendChild(volumeSlider);
+        container.appendChild(volumeControl);
+
+        audio.volume = currentVolume;
+
+        volumeSlider.oninput = () => {
+            audio.volume = volumeSlider.value;
+            currentVolume = volumeSlider.value;
+        };
+        
 
         audio.addEventListener("ended", () => {
             playBtn.textContent = "▶";

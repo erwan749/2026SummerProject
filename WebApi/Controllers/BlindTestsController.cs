@@ -39,8 +39,15 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBlindTestDto dto)
         {
-            Guid id = await _blindTestService.CreateBlindTestAsync(dto);
-            return Ok(id);
+            try
+            {
+                Guid id = await _blindTestService.CreateBlindTestAsync(dto);
+                return Ok(id);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("Clé admin invalide.");
+            }
         }
     }
 }

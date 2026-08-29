@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using WebApi.Dtos;
 using Entities;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Services
@@ -33,6 +34,8 @@ namespace WebApi.Services
         }
         public async Task<Guid> CreateBlindTestAsync(CreateBlindTestDto dto)
         {
+            bool isValidKey = await _blindTestDbContext.AdminKeys.AnyAsync(k => k.Key == dto.AdminKey);
+            if (!isValidKey) throw new UnauthorizedAccessException("Invalid admin key");
             BlindTest blindTest = new BlindTest();
             blindTest.Name = dto.Name;
             blindTest.Category = dto.Category;
