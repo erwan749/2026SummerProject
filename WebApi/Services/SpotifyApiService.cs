@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WebApi.Data;
 using WebApi.Dtos;
@@ -316,21 +317,7 @@ namespace WebApi.Services
             Entities.Track track = await _dbContext.Tracks.Include(t => t.Album).ThenInclude(a => a.Artist).FirstOrDefaultAsync(t => t.Id == trackId);
             if (track == null) throw new Exception("Track not found");
 
-            if (string.IsNullOrEmpty(track.Preview))
-            {
-                string deezerQuery = Uri.EscapeDataString($"{track.Title} {track.Album.Artist.Name}");
-                string deezerUrl = $"https://api.deezer.com/search?q={deezerQuery}";
-                HttpClient client = _httpClientFactory.CreateClient();
-                var deezerResponse = await client.GetAsync(deezerUrl);
-                deezerResponse.EnsureSuccessStatusCode();
-                string deezerJson = await deezerResponse.Content.ReadAsStringAsync();
-                DeezerSearchResponse deezerResult = JsonSerializer.Deserialize<DeezerSearchResponse>(deezerJson);
-
-                if (deezerResult.Data != null && deezerResult.Data.Count > 0)
-                {
-                    track.Preview = deezerResult.Data[0].Preview ?? "";
-                }
-            }
+            await RefreshPreviewIfNeededAsync(track);
 
             TrackDetailDto dto = new TrackDetailDto();
             dto.Id = track.Id;
@@ -376,6 +363,37 @@ namespace WebApi.Services
                 results.Add(MapTrackItemToSearchResult(tItem));
             }
             return results;
+        }
+        public bool IsPreviewExpired(string previewUrl)
+        {
+            if (string.IsNullOrEmpty(previewUrl)) return true;
+
+            Match match = Regex.Match(previewUrl, @"exp=(\d+)");
+            if (!match.Success) return false;
+
+            long expTimestamp = long.Parse(match.Groups[1].Value);
+            DateTimeOffset expDate = DateTimeOffset.FromUnixTimeSeconds(expTimestamp);
+            return expDate <= DateTimeOffset.UtcNow.AddMinutes(5);
+        }
+        public async Task RefreshPreviewIfNeededAsync(Track track)
+        {
+            if (!IsPreviewExpired(track.Preview)) return;
+
+            string deezerQuery = Uri.EscapeDataString($"{track.Title} {track.Album.Artist.Name}");
+            string deezerUrl = $"https://api.deezer.com/search?q={deezerQuery}";
+            HttpClient client = _httpClientFactory.CreateClient();
+            var deezerResponse = await client.GetAsync(deezerUrl);
+
+            if (deezerResponse.IsSuccessStatusCode)
+            {
+                string deezerJson = await deezerResponse.Content.ReadAsStringAsync();
+                DeezerSearchResponse deezerResult = JsonSerializer.Deserialize<DeezerSearchResponse>(deezerJson);
+                if (deezerResult.Data != null && deezerResult.Data.Count > 0)
+                {
+                    track.Preview = deezerResult.Data[0].Preview ?? "";
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
         }
     }
 }

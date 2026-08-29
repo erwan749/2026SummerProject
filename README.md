@@ -32,6 +32,8 @@ Gestion en mémoire des artistes, albums et morceaux, avec relations bidirection
   morceaux consultés, pour limiter les appels à l'API externe sur un contenu déjà visité
 - Création de blind tests : sélection d'un ensemble de morceaux (par nom, catégorie/thème), pour
   constituer un pool de questions réutilisable sur plusieurs parties
+- Lancement et déroulement d'un blind test : tirage aléatoire de questions à partir d'un blind
+  test choisi, validation des réponses avec tolérance orthographique, suivi de la progression
 
 ### Client web (JavaScript)
 - Champ de recherche avec temporisation (debounce) avant l'appel à l'API
@@ -44,6 +46,9 @@ Gestion en mémoire des artistes, albums et morceaux, avec relations bidirection
 - Interface responsive
 - Écran de création d'un blind test : recherche de morceaux dédiée, sélection par cases à cocher
   synchronisée entre les résultats de recherche et la liste de sélection en cours
+- Mode jeu : liste des blind tests disponibles, lecture automatique de l'extrait avec visualiseur
+  audio, validation des réponses avec retour visuel immédiat, écran de résultats final avec score
+  et récapitulatif des morceaux joués
 
 ## Structure du projet
 ```text

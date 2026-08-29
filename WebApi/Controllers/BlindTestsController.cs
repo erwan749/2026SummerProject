@@ -22,6 +22,14 @@ namespace WebApi.Controllers
             _spotifyApiService = spotifyApiService;
             _blindTestService = blindTestService;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            List<BlindTestSummaryDto> results = await _blindTestService.GetAllBlindTestsAsync();
+            return Ok(results);
+        }
+
         [HttpGet("search-tracks")]
         public async Task<IActionResult> SearchTracks([FromQuery(Name = "q")] string query)
         {

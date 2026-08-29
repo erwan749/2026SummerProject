@@ -17,7 +17,20 @@ namespace WebApi.Services
             _blindTestDbContext = blindTestDbContext;
             _spotifyApiService = spotifyApiService;
         }
-
+        public async Task<List<BlindTestSummaryDto>> GetAllBlindTestsAsync()
+        {
+            List<BlindTest> blindTests = await _blindTestDbContext.BlindTests.ToListAsync();
+            List<BlindTestSummaryDto> results = new List<BlindTestSummaryDto>();
+            foreach (BlindTest blindTest in blindTests)
+            {
+                BlindTestSummaryDto dto = new BlindTestSummaryDto();
+                dto.Id = blindTest.Id;
+                dto.Name = blindTest.Name;
+                dto.Category = blindTest.Category;
+                results.Add(dto);
+            }
+            return results;
+        }
         public async Task<Guid> CreateBlindTestAsync(CreateBlindTestDto dto)
         {
             BlindTest blindTest = new BlindTest();

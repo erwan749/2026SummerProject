@@ -12,6 +12,8 @@ namespace WebApi.Data
         public DbSet<Album> Albums { get; set; }
         public DbSet<Track> Tracks { get; set; }
         public DbSet<BlindTest> BlindTests { get; set; }
-         
+        public DbSet<GameSession> GameSessions { get; set; }
+        public DbSet<GameSessionQuestion> GameSessionQuestions { get; set; }
+
     }
 }

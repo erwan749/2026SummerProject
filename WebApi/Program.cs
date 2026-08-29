@@ -17,6 +17,7 @@ builder.Services.AddScoped<SpotifyApiService>();
 builder.Services.AddScoped<ArtistManager>();
 builder.Services.AddSingleton<AlbumPaginationCache>();
 builder.Services.AddScoped<BlindTestService>();
+builder.Services.AddScoped<GameSessionService>();
 string connectionString = builder.Configuration.GetConnectionString("BlindTestDb");
 builder.Services.AddDbContext<BlindTestDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddCors(options =>

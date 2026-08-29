@@ -1,11 +1,17 @@
 let debounceTimer;
 let currentVolume = 1;
 let selectedTracks = [];
+let currentGameSession = null;
+let gameResults = [];
 let selectedTracksContainerRef = null;
+
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("results");
 const createBlindTestBtn = document.getElementById("createBlindTestBtn"); 
+const playBlindTestBtn = document.getElementById("playBlindTestBtn")
+
 const API_BASE_URL = "https://localhost:7087";
+
 let currentAudio = null;
 
 
@@ -60,7 +66,59 @@ async function trackClick(artistId, albumId, trackId) {
     throw error;
    }
 }
+async function getAllBlindTests(){
+    try{
+        const reponse = await(await fetch(API_BASE_URL+"/api/blindtests")).json();
+        return reponse
+    }
+    catch(error){
+        throw error;
+    }
+}
+async function startGame(blindTestId){
+    try{
+        const payload = {
+            blindTestId : blindTestId
+        };
+        const reponse = await(await fetch(API_BASE_URL+"/api/Game/start",{
+            method : "POST",
+            headers :{ "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })).json();
+        return reponse
+    }
+    catch(error){
+        throw(error);
+    }
+}
 
+async function submitAnswer(sessionId, answerText) {
+    try{
+        const payload = {
+            sessionId : sessionId ,
+            answer : answerText
+        };
+        const reponse = await(await fetch(API_BASE_URL+"/api/Game/answer",{
+            method : "POST",
+            headers :{ "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })).json();
+        return reponse
+    }
+    catch(error){
+        throw(error);
+    }
+}
+
+async function getCurrentQuestion(sessionId) {
+    try {
+        const reponse = await (await fetch(API_BASE_URL + "/api/Game/" + sessionId + "/current")).json();
+        return reponse;
+    }
+    catch (error) {
+        throw error;
+    }
+}
 function createResultCard(item) {
     const card = document.createElement("div");
     card.classList.add("result-card");
@@ -289,6 +347,7 @@ function createBackButton() {
     backBtn.onclick = () => {
         searchInput.style.display = "";
         createBlindTestBtn.style.display ="";
+        playBlindTestBtn.style.display = "";
         performSearch(searchInput.value);
     };
     return backBtn;
@@ -629,4 +688,208 @@ function syncCardsCheckedState(itemId, checked) {
             card.classList.toggle("selected", checked);
         });
     });
+}
+
+async function showBlindTestList(){
+    try{
+        searchResults.innerHTML = "";
+        searchResults.textContent = "Recherche en cours...";
+        const results = await getAllBlindTests();
+        searchResults.textContent = "";
+        const backBtn = createBackButton();
+        searchResults.appendChild(backBtn);
+
+        const container = document.createElement("div");
+        container.id = "blindTestListContainer";
+
+        for (const result of results){
+            const card = document.createElement("div");
+            card.classList.add("blindtest-card"); 
+            card.innerHTML =`<p class="name">${result.name}</p><p class="category">${result.category}</p>`;
+            card.onclick = ()=> startGameFromCard(result.id);;
+            container.appendChild(card);
+        }
+        searchResults.appendChild(container);
+    }
+    catch(error){
+        console.log(error);
+        searchResults.innerHTML = "";
+        searchResults.textContent = "Une erreur est survenue, réessaie."; 
+    }
+}
+playBlindTestBtn.onclick =() =>{
+    createBlindTestBtn.style.display = "none";
+    searchInput.style.display = "none";
+    playBlindTestBtn.style.display ="none";
+    showBlindTestList();
+}
+
+async function startGameFromCard(blindTestId){
+    currentGameSession = await startGame(blindTestId);
+    gameResults = [];
+    showGameQuestion();
+}
+function showGameQuestion() {
+    searchResults.innerHTML = "";
+    searchResults.appendChild(createBackButton());
+
+    const container = document.createElement("div");
+    container.id = "gameQuestionContainer";
+
+    const type = currentGameSession.questionType == "artist" ? "Devine l'artiste" : "Devine le titre";
+    container.innerHTML = `<p id="gameProgress">${currentGameSession.questionNumber}/${currentGameSession.totalQuestions}</p><p class="question-type-label">${type}</p>`;
+
+    const canvas = document.createElement("canvas");
+    canvas.id = "gameVisualizer";
+    canvas.width = 400;
+    canvas.height = 120;
+    container.appendChild(canvas);
+
+    stopCurrentAudio();
+    currentAudio = new Audio(currentGameSession.previewUrl);
+    const audio = currentAudio;
+    audio.crossOrigin = "anonymous";
+
+    if (!currentGameSession.previewUrl) {
+        const noPreview = document.createElement("p");
+        noPreview.classList.add("no-preview");
+        noPreview.textContent = "Extrait non disponible pour ce morceau.";
+        container.appendChild(noPreview);
+    } else {
+        const playBtn = document.createElement("button");
+        playBtn.classList.add("play-btn");
+        playBtn.textContent = "▶";
+        playBtn.onclick = () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = "⏸";
+            } else {
+                audio.pause();
+                playBtn.textContent = "▶";
+            }
+        };
+        container.appendChild(playBtn);
+
+        audio.addEventListener("ended", () => {
+            playBtn.textContent = "▶";
+        });
+        if (currentGameSession.previewUrl) {
+            setupAudioVisualizer(audio, canvas);
+        }
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                playBtn.textContent = "⏸";
+            }).catch(() => {
+                playBtn.textContent = "▶";
+            });
+        }
+    }
+
+    const answerInput = document.createElement("input");
+    answerInput.id = "answerInput";
+    container.appendChild(answerInput);
+
+    const submitAnswerBtn = document.createElement("button");
+    submitAnswerBtn.id = "submitAnswerBtn";
+    submitAnswerBtn.textContent = "Valider";
+    submitAnswerBtn.onclick = () => handleAnswerSubmit(container, submitAnswerBtn, answerInput);
+    container.appendChild(submitAnswerBtn);
+
+    searchResults.appendChild(container);
+}
+
+async function handleAnswerSubmit(container, submitAnswerBtn, answerInput) {
+    stopCurrentAudio();
+    submitAnswerBtn.disabled = true;
+    const result = await submitAnswer(currentGameSession.sessionId, answerInput.value);
+    gameResults.push(result);
+
+    const feedback = document.createElement("div");
+    feedback.id = "answerFeedback";
+    feedback.classList.add(result.isCorrect ? "correct" : "incorrect");
+    feedback.textContent = result.isCorrect
+        ? "Correct !"
+        : `Incorrect, la réponse était : ${result.correctAnswer}`;
+    container.appendChild(feedback);
+
+    answerInput.disabled = true;
+
+    setTimeout(async () => {
+        if (result.isGameOver) {
+            showGameSummary();
+        } else {
+            currentGameSession = await getCurrentQuestion(currentGameSession.sessionId);
+            showGameQuestion();
+        }
+    }, 2000);
+}
+function showGameSummary() {
+    searchResults.innerHTML = "";
+    searchResults.appendChild(createBackButton());
+
+    const container = document.createElement("div");
+    container.id = "gameSummaryContainer";
+
+    const score = gameResults.filter(r => r.isCorrect).length;
+    const total = gameResults.length;
+
+    const scoreEl = document.createElement("p");
+    scoreEl.classList.add("game-score");
+    scoreEl.textContent = `${score} / ${total}`;
+    container.appendChild(scoreEl);
+
+    const list = document.createElement("div");
+    list.id = "gameSummaryList";
+    list.classList.add("results-grid");
+
+    for (const result of gameResults) {
+        const item = {
+            type: "track",
+            id: result.track.id,
+            name: result.track.title,
+            imageUrl: result.track.albumImageUrl,
+            subtitle: result.track.artistName,
+            artistId: result.track.artistId,
+            albumId: result.track.albumId
+        };
+        list.appendChild(createResultCard(item));
+    }
+    container.appendChild(list);
+
+    searchResults.appendChild(container);
+}
+function setupAudioVisualizer(audio, canvas) {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaElementSource(audio);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        const ctx = canvas.getContext("2d");
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function draw() {
+            requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const barWidth = (canvas.width / bufferLength) * 1.5;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height;
+                ctx.fillStyle = "#00688f";
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 2;
+            }
+        }
+        draw();
+    } catch (error) {
+        console.log("Visualiseur indisponible :", error);
+    }
 }
