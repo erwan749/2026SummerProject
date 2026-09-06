@@ -1,0 +1,43 @@
+.albumContainer {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.detailedAlbum {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.detailedAlbum img {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.albumTitle {
+  margin: 0;
+}
+
+.albumTrackContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.albumTrack {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.albumTrack:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #00688f;
+  cursor: pointer;
+}

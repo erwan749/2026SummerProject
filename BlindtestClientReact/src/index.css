@@ -1,0 +1,27 @@
+:root {
+  --accent-blue: #00688f;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  color: white;
+  font-family: system-ui, sans-serif;
+}
+.back-button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 1rem;
+  transition: border-color 0.15s;
+}
+
+.back-button:hover {
+  border-color: #00688f;
+}
