@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config';
 import './Search.css';
 
-export default function Search({ onArtistClick , onAlbumClick }) {
+export default function Search({ onArtistClick , onAlbumClick,onTrackClick }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
@@ -19,7 +19,7 @@ export default function Search({ onArtistClick , onAlbumClick }) {
     <div className="search-page">
         <input placeholder="Rechercher un artiste, un album, un titre..." onChange={(e) => setQuery(e.target.value)} value={query}/>
         <div className="results-grid">
-          {results.map(result => <div className="result-card" key={result.id} onClick={() => {if(result.type === "artist") onArtistClick(result);if(result.type === "album") onAlbumClick(result);}}>
+          {results.map(result => <div className="result-card" key={result.id} onClick={() => {if(result.type === "artist") onArtistClick(result);if(result.type === "album") onAlbumClick(result);if (result.type === "track" && result.albumId !== null) onTrackClick(result);}}>
             <img src={result.imageUrl} alt={result.name}/>
             <p className='name'>{result.name}</p>
             <span className='subtitle'>{result.subtitle}</span>

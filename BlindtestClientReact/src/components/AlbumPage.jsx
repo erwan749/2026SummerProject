@@ -2,7 +2,7 @@ import { useState , useEffect} from 'react';
 import { API_BASE_URL } from '../config';
 import './AlbumPage.css';
 
-export default function AlbumPage({album , onBack}){
+export default function AlbumPage({album , onBack, onTrackClick}){
     const [albumDetails , setAlbumDetails] = useState(null);
 
     useEffect (()=> {
@@ -27,7 +27,7 @@ export default function AlbumPage({album , onBack}){
                     <p>TRACKS</p>
                     <div className='albumTrackContainer'>
                         {albumDetails.tracks.map(track => 
-                        <div className='albumTrack' key={track.id}>
+                        <div className='albumTrack' key={track.id} onClick={ () => onTrackClick({...track, artistId: albumDetails.artistId, albumId : albumDetails.id})}>
                             <p>{track.title}</p>
                         </div>)}
                     </div>
