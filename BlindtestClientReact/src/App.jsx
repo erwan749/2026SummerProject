@@ -12,7 +12,7 @@ function App() {
 
   let content;
   if (selectedTrack) {
-    content = <TrackPage track={selectedTrack} onBack={() => setSelectedTrack(null)} />
+    content = <TrackPage track={selectedTrack} onBack={() => setSelectedTrack(null)}  onTrackClick={(track) => setSelectedTrack(track)}/>
   } else if (selectedAlbum) {
     content = <AlbumPage album={selectedAlbum} onBack={() => setSelectedAlbum(null)} onTrackClick={(track) => setSelectedTrack(track)}/>;
   } else if (selectedArtist) {

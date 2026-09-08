@@ -27,14 +27,14 @@ export default function AlbumPage({album , onBack, onTrackClick}){
                     <p>TRACKS</p>
                     <div className='albumTrackContainer'>
                         {albumDetails.tracks.map(track => 
-                        <div className='albumTrack' key={track.id} onClick={ () => onTrackClick({...track, artistId: albumDetails.artistId, albumId : albumDetails.id})}>
+                        <div className='albumTrack' key={track.id} onClick={ () => onTrackClick({ ...track, artistId: albumDetails.artistId, albumId: albumDetails.id, albumTracks: albumDetails.tracks })}>
                             <p>{track.title}</p>
                         </div>)}
                     </div>
                 </div>
 
             </div>
-            
+
             : <div>Chargement...</div>}
         </>
     )

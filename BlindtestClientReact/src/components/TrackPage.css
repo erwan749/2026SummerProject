@@ -10,3 +10,71 @@
   height: 100%;
   background: #00688f;
 }
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.player-controls button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.player-controls button:hover:not(:disabled) {
+  border-color: #00688f;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.player-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.volume-slider {
+  width: 100%;
+  max-width: 200px;
+  accent-color: #00688f;
+}
+.track-page {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+.track-page {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.disc {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 30px rgba(0, 104, 143, 0.3);
+  animation: spin 8s linear infinite;
+  animation-play-state: paused;
+  margin: 1rem 0;
+}
+
+.disc.playing {
+  animation-play-state: running;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
